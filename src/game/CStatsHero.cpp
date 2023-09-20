@@ -1,0 +1,1 @@
+#include "CStatsHero.h"
