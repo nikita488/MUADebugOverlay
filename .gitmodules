@@ -1,0 +1,3 @@
+[submodule "thirdparty/Utils"]
+	path = thirdparty/Utils
+	url = https://github.com/CookiePLMonster/ModUtils.git
