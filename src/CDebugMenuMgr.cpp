@@ -121,7 +121,7 @@ void CDebugMenuMgr::Draw()
 	displaySize.y = float(TheDisplay().GetHeight());
 	
 	ImGui::NewFrame();
-	ImGui::DockSpaceOverViewport(ImGui::GetMainViewport(), ImGuiDockNodeFlags_NoDockingInCentralNode | ImGuiDockNodeFlags_PassthruCentralNode);
+	ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport(), ImGuiDockNodeFlags_NoDockingOverCentralNode | ImGuiDockNodeFlags_PassthruCentralNode);
 
 	for (TDebugWindowVectorIterator it = mWindows.begin(); it != mWindows.end(); it++)
 	{
