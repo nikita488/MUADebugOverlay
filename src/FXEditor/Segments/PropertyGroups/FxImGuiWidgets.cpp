@@ -241,7 +241,7 @@ bool InputFile(const char* label, char* buf, size_t buf_size, const char* initia
 	auto resolvePath = [&dlg, &initialPath](const char* input) -> std::string
 	{
 		fs::path relativePath;
-		bool success = dlg.RelativePath(input, relativePath);
+		bool success = input[0] == '\0' || dlg.RelativePath(input, relativePath);
 
 		if (!success)
 		{

@@ -165,6 +165,11 @@ bool CFxColorGroup::Draw(IFxSegment* segment)
 	
 		if (InputAsset("Texture", mTexture.c_str(), mTexture.capacity(), textureCache, primTemplate->field_688.c_str(), ctx))
 		{
+			if (mTexture.empty())
+			{
+				mTexture = "textures/default.png";
+			}
+			
 			primTemplate->field_688 = mTexture;
 			valueChanged = true;
 		}

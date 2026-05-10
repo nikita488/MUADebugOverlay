@@ -23,6 +23,7 @@ enum EFxShader
 	SHADER_CUSTOM,
 };
 
+//TODO: Rename to CFxMaterialGroup
 class CFxColorGroup : public IFxPropertyGroup
 {
 private:
