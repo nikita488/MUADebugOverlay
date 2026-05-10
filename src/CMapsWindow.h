@@ -9,8 +9,8 @@ class CMapsWindow : public IDebugWindow
 {
 private:
 	std::vector<std::string> mLoadPoints;
-	size_t mSelectedLoadpoint;
-	size_t mSelectedZone;
+	int mSelectedLoadpoint;
+	int mSelectedZone;
 
 public:
 	CMapsWindow();

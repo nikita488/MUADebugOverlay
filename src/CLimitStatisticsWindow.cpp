@@ -141,7 +141,7 @@ void ShowFXStats()
 	TVectorPool& vectorComponentPool = TheVectorPool();
 	
 	ImGui::SeparatorText("FX");
-	ImGui::Text("FX Templates: %d / %d", fxTemplateManager.field_0.size(), fxTemplateManager.field_0.CAPACITY);
+	ImGui::Text("FX Templates: %d / %d", fxTemplateManager.field_19416.size(), fxTemplateManager.field_19416.CAPACITY);
 	ImGui::Text("FX Primitive Templates: %d / %d", primitiveTemplatePool.field_0.size(), primitiveTemplatePool.field_0.CAPACITY);
 	ImGui::Text("Quad Components: %d / %d", quadComponentPool.field_0.size(), quadComponentPool.field_0.CAPACITY);
 	ImGui::Text("Vector Components: %d / %d", vectorComponentPool.field_0.size(), vectorComponentPool.field_0.CAPACITY);

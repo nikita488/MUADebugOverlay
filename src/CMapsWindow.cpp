@@ -14,15 +14,15 @@
 #include <Game/IGame.h>
 #include <Game/IZoneInfo.h>
 
-CMapsWindow::CMapsWindow() : mSelectedLoadpoint(-1), mSelectedZone(-1)
+CMapsWindow::CMapsWindow() : 
+	mSelectedLoadpoint(-1), 
+	mSelectedZone(-1)
 {
 }
 
 void CMapsWindow::LoadPointList()
 {
-	using namespace TinyXmlBinary;
-
-	TiXmlbDocument doc;
+	TiXmlDocument doc;
 
 	if (doc.LoadFile("data/loadpoint_list.xmlb", true, MP_TEMPORARY, false))
 	{

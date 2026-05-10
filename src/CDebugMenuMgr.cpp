@@ -21,23 +21,19 @@
 #include "CMiscWindow.h"
 #include "CWorldWindow.h"
 #include "CMapsWindow.h"
+#include "FXEditor/CFxEditorWindow.h"
 
-CDebugMenuMgr::CDebugMenuMgr()
+#include "FXEditor/IFxEditor.h"
+
+void CDebugMenuMgr::Initialize()
 {
+	using namespace Display;
+	
 #if _DEBUG
 	mEnabled = true;
 #else
 	mEnabled = false;
 #endif
-}
-
-CDebugMenuMgr::~CDebugMenuMgr()
-{
-}
-
-void CDebugMenuMgr::Initialize()
-{
-	using namespace Display;
 	
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -45,7 +41,6 @@ void CDebugMenuMgr::Initialize()
 	ImGuiIO& io = ImGui::GetIO();
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-	io.MouseDrawCursor = mEnabled;
 
 	io.Fonts->AddFontDefault();
 	io.Fonts->AddFontFromMemoryCompressedTTF(roboto_medium_compressed_data, roboto_medium_compressed_size, 24.0F);
@@ -64,6 +59,8 @@ void CDebugMenuMgr::Initialize()
 	{
 		(*it)->Initialize();
 	}
+
+	//mFxEditor.Initialize();
 }
 
 void CDebugMenuMgr::RegisterAllWindows()
@@ -80,6 +77,10 @@ void CDebugMenuMgr::RegisterAllWindows()
 	RegisterWindow<CFxWindow>("fx");
 	RegisterWindow<CWorldWindow>("world");
 	RegisterWindow<CMapsWindow>("maps");
+	
+#ifdef _DEBUG
+	RegisterWindow<CFxEditorWindow>("fx_editor");
+#endif
 
 	misc->SetOverlay(overlay);
 }
@@ -105,31 +106,38 @@ void CDebugMenuMgr::Shutdown()
 	mWindows.clear();
 }
 
+void CDebugMenuMgr::RunFrame()
+{
+
+}
+
 void CDebugMenuMgr::Draw()
 {
-	if (!mEnabled || !ImGui::GetCurrentContext())
-	{
-		return;
-	}
-	
+	if (!ImGui::GetCurrentContext()) return;
+
 	ImGui_ImplDX9_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 
-	ImVec2& displaySize = ImGui::GetIO().DisplaySize;
+	ImGuiIO& io = ImGui::GetIO();
 
-	displaySize.x = float(TheDisplay().GetWidth());
-	displaySize.y = float(TheDisplay().GetHeight());
-	
+	io.MouseDrawCursor = mEnabled || TheFxEditor().IsActive();
+	io.DisplaySize.x = float(TheDisplay().GetWidth());
+	io.DisplaySize.y = float(TheDisplay().GetHeight());
+
 	ImGui::NewFrame();
 	ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport(), ImGuiDockNodeFlags_NoDockingOverCentralNode | ImGuiDockNodeFlags_PassthruCentralNode);
 
-	for (TDebugWindowVectorIterator it = mWindows.begin(); it != mWindows.end(); it++)
+	TheFxEditor().RunFrame();
+	
+	if (mEnabled)
 	{
-		(*it)->Draw();
+		for (TDebugWindowVectorIterator it = mWindows.begin(); it != mWindows.end(); it++)
+		{
+			(*it)->Draw();
+		}
 	}
 
 	ImGui::EndFrame();
-
 	ImGui::Render();
 	ImGui_ImplDX9_RenderDrawData(ImGui::GetDrawData());
 }
@@ -145,8 +153,8 @@ void CDebugMenuMgr::SetEnabled(bool enabled)
 }
 
 bool CDebugMenuMgr::WantCaptureMouse() const
-{
-	if (mEnabled && ImGui::GetCurrentContext())
+{	
+	if ((mEnabled || TheFxEditor().IsActive()) && ImGui::GetCurrentContext())
 	{
 		return ImGui::GetIO().WantCaptureMouse;
 	}
@@ -158,7 +166,7 @@ bool CDebugMenuMgr::WantCaptureMouse() const
 
 bool CDebugMenuMgr::WantCaptureKeyboard() const
 {
-	if (mEnabled && ImGui::GetCurrentContext())
+	if ((mEnabled || TheFxEditor().IsActive()) && ImGui::GetCurrentContext())
 	{
 		return ImGui::GetIO().WantCaptureKeyboard;
 	}

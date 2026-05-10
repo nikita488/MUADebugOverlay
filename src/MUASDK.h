@@ -41,7 +41,9 @@ namespace MUASDK
 
 	Event<>& OnInitEvent();
 	Event<>& OnShutdownEvent();
+	Event<>& OnRunFrameEvent();
 	Event<>& OnEndDrawEvent();
+	Event<>& OnHandleEventsEvent();
 	Event<>& OnGameInitEvent();
 	Event<>& OnGameShutdownEvent();
 	Event<>& OnGameRunFrameEvent();

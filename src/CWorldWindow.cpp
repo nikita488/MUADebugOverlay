@@ -31,8 +31,18 @@ void CWorldWindow::Draw()
 				{
 					const igVec3f& origin = ent->Origin();
 					const igVec3f& angles = ent->Angles();
+					const SAABBox& extent = ent->Extent();
+					
 					ImGui::Text("Position: %f %f %f", origin[0], origin[1], origin[2]);
 					ImGui::Text("Angles: %f %f %f", angles[0], angles[1], angles[2]);
+					ImGui::Text("Extent:  %f %f %f -> %f %f %f", extent.mins[0], extent.mins[1], extent.mins[2], extent.maxs[0], extent.maxs[1], extent.maxs[2]);
+
+					if (ent->CollideExtent())
+					{
+						const SAABBox& collideExtent = *ent->CollideExtent();
+						ImGui::Text("Collide Extent: %f %f %f -> %f %f %f", collideExtent.mins[0], collideExtent.mins[1], collideExtent.mins[2], collideExtent.maxs[0], collideExtent.maxs[1], collideExtent.maxs[2]);
+					}
+
 					ImGui::TreePop();
 				}
 
@@ -52,7 +62,7 @@ void CWorldWindow::Draw()
 			{
 				CEntitySave& ent = (*it);
 
-				ImGui::Text("%02d: %s (%s)", index + 1, ent._entName.c_str(), ent._entName.empty() ? "None" : ent._entName.c_str());
+				ImGui::Text("%02d: %s (%s)", index + 1, ent.mEntName.c_str(), ent.mEntName.empty() ? "None" : ent.mEntName.c_str());
 				index++;
 			}
 		}

@@ -41,15 +41,15 @@ const char* CFxWindow::fxBlendNames[5] =
 	"source",
 };
 
-void AddRangeInput(const char* label, float* range)
+void AddRangeInput(const char* label, CRangedFloat& range)
 {
-	float max = range[0] + range[1];
-	ImVec2 fixedRange(range[0], max);
+	float max = range._base + range._range;
+	ImVec2 fixedRange(range._base, max);
 
 	if (ImGui::InputFloat2(label, (float*)&fixedRange, "%g"))
 	{
-		range[0] = fixedRange[0];
-		range[1] = fixedRange[1] - fixedRange[0];
+		range._base = fixedRange[0];
+		range._range = fixedRange[1] - fixedRange[0];
 	}
 }
 
@@ -58,7 +58,7 @@ void AddColorPicker(const char* label, unsigned int& abgr)
 	igVec4f color;
 	color.unpackColor(IG_MATH_COLORSPACE_FORMAT_RGBA, abgr, 0.0F);//wtf Alchemy
 
-	bool changed = ImGui::ColorEdit4(label, (float*)&color, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
+	bool changed = ImGui::ColorEdit4(label, (float*)&color, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel | ImGuiColorEditFlags_NoAlpha);
 
 	if (changed)
 	{
@@ -116,8 +116,8 @@ void AddQuadComponent(const char* label, short handle)
 
 		if (ImGui::InputFloat2("Clamp Min/Max##clampRange", (float*)&range, "%g"))
 		{
-			component._base._min = range[1];
-			component._base._max = range[0];
+			component._base._min = range[0];
+			component._base._max = range[1];
 		}
 
 		if (handle >= 0 && handle <= 150)
@@ -208,7 +208,7 @@ void AddFlags(const char* label, unsigned int& flags)
 			for (unsigned int i = 0; i < 32; i++)
 			{
 				char label[64];
-				snprintf(label, 64, "%d", i);
+				snprintf(label, 64, "%#x", 1 << i);
 				ImGui::TableNextColumn();
 				ImGui::CheckboxFlags(label, &flags, 1 << i);
 			}
@@ -221,7 +221,7 @@ void AddFlags(const char* label, unsigned int& flags)
 
 void AddFxPrimitiveTemplate(CFxPrimitiveTemplate& primitiveTemplate)
 {
-	int& primitiveIndex = primitiveTemplate.field_4;
+	EFXPrimType& primitiveIndex = primitiveTemplate.field_4;
 
 	if (ImGui::BeginCombo("Primitive Type", CFxWindow::fxPrimitiveNames[primitiveIndex]))
 	{
@@ -231,7 +231,7 @@ void AddFxPrimitiveTemplate(CFxPrimitiveTemplate& primitiveTemplate)
 
 			if (ImGui::Selectable(CFxWindow::fxPrimitiveNames[i], isSelected))
 			{
-				primitiveIndex = i;
+				primitiveIndex = EFXPrimType(i);
 			}
 
 			if (isSelected)
@@ -242,11 +242,11 @@ void AddFxPrimitiveTemplate(CFxPrimitiveTemplate& primitiveTemplate)
 		ImGui::EndCombo();
 	}
 
-	AddRangeInput("delay Min/Max", &primitiveTemplate.field_8);
-	AddRangeInput("count Min/Max", &primitiveTemplate.field_16);
-	AddRangeInput("life Min/Max", &primitiveTemplate.field_24);
-	AddRangeInput("drag Min/Max", &primitiveTemplate.field_32);
-	AddRangeInput("gravity Min/Max", &primitiveTemplate.field_40);
+	AddRangeInput("delay Min/Max", primitiveTemplate.field_8);
+	AddRangeInput("count Min/Max", primitiveTemplate.field_16);
+	AddRangeInput("life Min/Max", primitiveTemplate.field_24);
+	AddRangeInput("drag Min/Max", primitiveTemplate.field_32);
+	AddRangeInput("gravity Min/Max", primitiveTemplate.field_40);
 	AddFlags("primitiveFlags", primitiveTemplate.field_48);
 	AddFlags("primitiveFlags2", primitiveTemplate.field_52);
 	AddFlags("spawnFlags", primitiveTemplate.field_56);
@@ -254,9 +254,9 @@ void AddFxPrimitiveTemplate(CFxPrimitiveTemplate& primitiveTemplate)
 	ImGui::Text("IntervalFxFile: %d", primitiveTemplate.field_64);//check
 	ImGui::InputFloat("Interval", &primitiveTemplate.field_68, 0.0F, 0.0F, "%g");
 	ImGui::InputFloat("viewoffset", &primitiveTemplate.field_72, 0.0F, 0.0F, "%g");
-	AddRangeInput("radius Min/Max", &primitiveTemplate.field_76);
-	AddRangeInput("radius2 Min/Max", &primitiveTemplate.field_84);
-	AddRangeInput("height Min/Max", &primitiveTemplate.field_92);
+	AddRangeInput("radius Min/Max", primitiveTemplate.field_76);
+	AddRangeInput("radius2 Min/Max", primitiveTemplate.field_84);
+	AddRangeInput("height Min/Max", primitiveTemplate.field_92);
 
 	AddColorPicker("startColor1Picker", primitiveTemplate.field_100); ImGui::SameLine();
 	ImGui::InputScalar("startColor1", ImGuiDataType_U32, &primitiveTemplate.field_100, NULL, NULL, "%u");
@@ -275,6 +275,19 @@ void AddFxPrimitiveTemplate(CFxPrimitiveTemplate& primitiveTemplate)
 
 	AddColorPicker("endColor2Picker", primitiveTemplate.field_120); ImGui::SameLine();
 	ImGui::InputScalar("endColor2", ImGuiDataType_U32, &primitiveTemplate.field_120, NULL, NULL, "%u");
+
+	//CRangedQuadratic redQuad;
+	//primitiveTemplate.CalcRedRangedQuad(&redQuad);
+	//
+	//CRangedQuadratic greenQuad;
+	//primitiveTemplate.CalcGreenRangedQuad(&greenQuad);
+	//
+	//CRangedQuadratic blueQuad;
+	//primitiveTemplate.CalcBlueRangedQuad(&blueQuad);
+	//
+	//ImGui::Text("red: %g %g %g %g %g %g", redQuad._base._a, redQuad._base._b, redQuad._base._c, redQuad._base._a + redQuad._range[0], redQuad._base._b + redQuad._range[1], redQuad._base._c + redQuad._range[2]);
+	//ImGui::Text("green: %g %g %g %g %g %g", greenQuad._base._a, greenQuad._base._b, greenQuad._base._c, greenQuad._base._a + greenQuad._range[0], greenQuad._base._b + greenQuad._range[1], greenQuad._base._c + greenQuad._range[2]);
+	//ImGui::Text("blue: %g %g %g %g %g %g", blueQuad._base._a, blueQuad._base._b, blueQuad._base._c, blueQuad._base._a + blueQuad._range[0], blueQuad._base._b + blueQuad._range[1], blueQuad._base._c + blueQuad._range[2]);
 
 	int& blendIndex = primitiveTemplate.field_124;
 
@@ -297,11 +310,11 @@ void AddFxPrimitiveTemplate(CFxPrimitiveTemplate& primitiveTemplate)
 		ImGui::EndCombo();
 	}
 
-	AddRangeInput("drag2 Min/Max", &primitiveTemplate.field_128);
-	AddRangeInput("gravity2 Min/Max", &primitiveTemplate.field_136);
+	AddRangeInput("drag2 Min/Max", primitiveTemplate.field_128);
+	AddRangeInput("gravity2 Min/Max", primitiveTemplate.field_136);
 	ImGui::InputFloat("pLife", &primitiveTemplate.field_144, 0.0F, 0.0F, "%g");
-	AddRangeInput("ptravel Min/Max", &primitiveTemplate.field_148);
-	AddRangeInput("pspawn Min/Max", &primitiveTemplate.field_156);
+	AddRangeInput("ptravel Min/Max", primitiveTemplate.field_148);
+	AddRangeInput("pspawn Min/Max", primitiveTemplate.field_156);
 	ImGui::InputFloat("shakespeed", &primitiveTemplate.field_164, 0.0F, 0.0F, "%g");
 	ImGui::InputFloat("shakescale", &primitiveTemplate.field_168, 0.0F, 0.0F, "%g");
 	ImGui::InputInt("shaketype", &primitiveTemplate.field_172);

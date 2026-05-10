@@ -2,8 +2,23 @@
 
 #include <imgui/imgui.h>
 
+#include <Common/Ratl/string_vs.h>
+
 #include <Game/IDeveloperInput.h>
 #include <Misc/ICommand.h>
+
+#include <UI/IMenuSystem.h>
+
+#include "FXEditor/Segments/PropertyGroups/FxImGuiWidgets.h"
+
+CMiscWindow::CMiscWindow() :
+	mOverlay(NULL),
+	mTeamRepAmount(1),
+	mXPAmount(1),
+	mXPAllAmount(1),
+	mMoneyAmount(1)
+{
+}
 
 void CMiscWindow::Draw()
 {
@@ -17,28 +32,12 @@ void CMiscWindow::Draw()
 			{
 				TheDeveloperInput().SetEnabled(devInputEnabled);
 			}
-
-			ImGui::Text("NoClip"); ImGui::SameLine();
-
-			if (ImGui::Button("Toggle"))
-			{
-				Command().ExecuteCommandString("noclip");
-			}
-
-			ImGui::Text("LoadPoint"); ImGui::SameLine();
-
-			if (ImGui::Button("Load"))
-			{
-				Command().AsyncCommand("loadpoint a2_strange1b");
-				//Command().AsyncCommand("loadmap act1/heli/heli1");
-				//Command().AsyncCommand("loadmapaddteam act1/heli/heli1");
-			}
 		}
 
 		if (ImGui::CollapsingHeader("Draw"))
 		{
 			assert(mOverlay);
-			
+
 			bool showEntityName = mOverlay->GetShowEntityName();
 
 			if (ImGui::Checkbox("Draw Entity Names", &showEntityName))
@@ -73,6 +72,102 @@ void CMiscWindow::Draw()
 			{
 				mOverlay->SetEntityInfoRange(entityInfoRange);
 			}
+		}
+
+		if (ImGui::CollapsingHeader("Commands"))
+		{
+			ImGui::Indent();
+			
+			if (ImGui::CollapsingHeader("Menu"))
+			{
+				GroupSection group(TheMenuMgr().IsActive());
+
+				if (ImGui::Button("Menu : Debug"))
+				{
+					Command().AsyncCommand("openmenu debug");
+				}
+
+				if (ImGui::Button("Menu : Codex"))
+				{
+					Command().AsyncCommand("openmenu codex");
+				}
+
+				if (ImGui::Button("Menu : Fx Editor"))
+				{
+					Command().AsyncCommand("openmenu fxeditor");
+				}
+			}
+			
+			if (ImGui::CollapsingHeader("Give"))
+			{
+				{
+					if (ImGui::Button("Give##TeamReputationButton"))
+					{
+						ratl::string_vs<32> cmd;
+						sprintf_s(cmd.c_str(), cmd.capacity(), "give rep %d", mTeamRepAmount);
+						Command().ExecuteCommandString(cmd.c_str());
+					}
+
+					ImGui::SameLine();
+					ImGui::DragInt("##TeamReputationAmount", &mTeamRepAmount, 1.0F, 1, 2147483647, "+%d Team reputation");
+				}
+
+				{
+					if (ImGui::Button("Give##XpButton"))
+					{
+						ratl::string_vs<32> cmd;
+						sprintf_s(cmd.c_str(), cmd.capacity(), "give xp %d", mXPAmount);
+						Command().ExecuteCommandString(cmd.c_str());
+					}
+
+					ImGui::SameLine();
+					ImGui::DragInt("##XpAmount", &mXPAmount, 1.0F, 1, 2147483647, "+%d XP to Current heroes");
+				}
+
+				{
+					if (ImGui::Button("Give##XpAllButton"))
+					{
+						ratl::string_vs<32> cmd;
+						sprintf_s(cmd.c_str(), cmd.capacity(), "give xpall %d", mXPAllAmount);
+						Command().ExecuteCommandString(cmd.c_str());
+					}
+
+					ImGui::SameLine();
+					ImGui::DragInt("##XpAllAmount", &mXPAllAmount, 1.0F, 1, 2147483647, "+%d XP to All heroes");
+				}
+
+				{
+					if (ImGui::Button("Give##MoneyButton"))
+					{
+						ratl::string_vs<32> cmd;
+						sprintf_s(cmd.c_str(), cmd.capacity(), "give money %d", mMoneyAmount);
+						Command().ExecuteCommandString(cmd.c_str());
+					}
+
+					ImGui::SameLine();
+					ImGui::DragInt("##MoneyAmount", &mMoneyAmount, 1.0F, 1, 2147483647, "+%d Money to Current hero");
+				}
+			}
+
+			if (ImGui::CollapsingHeader("Player"))
+			{
+				if (ImGui::Button("Toggle NoClip"))
+				{
+					Command().ExecuteCommandString("noclip");
+				}
+
+				if (ImGui::Button("Fill Xtreme bar"))
+				{
+					Command().ExecuteCommandString("give xtreme");
+				}
+
+				if (ImGui::Button("Resurrect heroes"))
+				{
+					Command().ExecuteCommandString("give res");
+				}
+			}
+
+			ImGui::Unindent();
 		}
 	}
 

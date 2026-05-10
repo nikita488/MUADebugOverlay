@@ -18,6 +18,18 @@ Event<>& OnShutdownEvent()
 	return ShutdownEvent;
 }
 
+Event<>& OnRunFrameEvent()
+{
+	static Event<> RunFrameEvent;
+	return RunFrameEvent;
+}
+
+Event<>& OnHandleEventsEvent()
+{
+	static Event<> HandleEventsEvent;
+	return HandleEventsEvent;
+}
+
 Event<>& OnEndDrawEvent()
 {
 	static Event<> EndDrawEvent;
@@ -87,6 +99,28 @@ static void __fastcall ClientShutdownHook(void* client)
 	OnShutdownEvent().ExecuteAll();
 }
 
+static bool (__thiscall* orgClientRunFrame)(void* client);
+
+static bool __fastcall ClientRunFrameHook(void* client)
+{
+	OnRunFrameEvent().ExecuteAll();
+	return orgClientRunFrame(client);
+}
+
+static bool (__thiscall* orgDisplayHandleEvents)(void* display);
+
+static bool __fastcall DisplayHandleEventsHook(void* display)
+{
+	bool success = orgDisplayHandleEvents(display);
+
+	if (success)
+	{
+		OnHandleEventsEvent().ExecuteAll();
+	}
+
+	return success;
+}
+
 static bool (__thiscall* orgDisplayEndDraw)(void* display);
 
 static bool __fastcall DisplayEndDrawHook(void* display)
@@ -135,7 +169,10 @@ void InstallHooks()
 	
 	InterceptMemDisplacement(0x7996C8, orgClientInitialize, ClientInitializeHook);
 	InterceptMemDisplacement(0x7996CC, orgClientShutdown, ClientShutdownHook);
+	InterceptMemDisplacement(0x7996D4, orgClientRunFrame, ClientRunFrameHook);
+
 	InterceptMemDisplacement(0x7CD80C, orgDisplayEndDraw, DisplayEndDrawHook);
+	InterceptMemDisplacement(0x7CD770, orgDisplayHandleEvents, DisplayHandleEventsHook);
 
 	InterceptMemDisplacement(0x7A2430, orgGameInitialize, GameInitializeHook);
 	InterceptMemDisplacement(0x7A2434, orgGameShutdown, GameShutdownHook);

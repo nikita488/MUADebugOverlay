@@ -41,12 +41,12 @@ workspace "MUADebugMenu"
 	conformancemode "Off"
 	links { "legacy_stdio_definitions", "winmm" }
 	staticruntime "on"
-	defines { "WIN32_LEAN_AND_MEAN", "_CRT_SECURE_NO_WARNINGS", "_CRT_NONSTDC_NO_DEPRECATE", "_USE_32BIT_TIME_T", "NOMINMAX", "IG_COMPILER_MSVC", "IG_TARGET_WIN32", "IG_TARGET_TYPE_WIN32", "IG_GFX_DX9", "IG_ALCHEMY_DLL=1", "_MUA", "FINAL_BUILD", "DLL_NAME=\"$(ProjectName)\"" }
+	defines { "WIN32_LEAN_AND_MEAN", "_CRT_SECURE_NO_WARNINGS", "_CRT_NONSTDC_NO_DEPRECATE", "NOMINMAX", "IG_COMPILER_MSVC", "IG_TARGET_WIN32", "IG_TARGET_TYPE_WIN32", "IG_GFX_DX9", "IG_ALCHEMY_DLL=1", "_MUA", "FINAL_BUILD", "DLL_NAME=\"$(ProjectName)\"" }
 
 	includedirs { path.join(MUA_SDK, "Engine"), path.join(IG_ROOT, "include"), "thirdparty", "thirdparty/safetyhook" }
 	libdirs { path.join(IG_ROOT, "DirectX9/lib") }
 	
-	links { "libIGCore", "libIGMath", "libIGDisplay", "libIGGfx", "libIGSg", "libIGUtils" }
+	links { "libIGCore", "libIGMath", "libIGDisplay", "libIGGfx", "libIGSg", "libIGUtils", "libIGAttrs" }
 
 	filter "configurations:Debug*"
 		defines { "_DEBUG" }

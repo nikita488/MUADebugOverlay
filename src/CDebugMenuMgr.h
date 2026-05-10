@@ -60,11 +60,9 @@ public://TODO: Make private
 	}
 
 public:
-	CDebugMenuMgr();
-
-	virtual ~CDebugMenuMgr();
 	virtual void Initialize();
 	virtual void Shutdown();
+	virtual void RunFrame();
 	virtual void Draw();
 	virtual bool GetEnabled() const;
 	virtual void SetEnabled(bool enabled);
