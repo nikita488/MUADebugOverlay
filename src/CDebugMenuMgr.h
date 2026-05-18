@@ -5,7 +5,8 @@
 #include <unordered_map>
 
 #include "IDebugMenuMgr.h"
-#include "IDebugWindow.h"
+
+#include "DebugWindows/IDebugWindow.h"
 
 typedef std::vector<IDebugWindow*> TDebugWindowVector;
 typedef TDebugWindowVector::iterator TDebugWindowVectorIterator;
@@ -24,7 +25,7 @@ private:
 
 	void RegisterAllWindows();
 
-public://TODO: Make private
+private://TODO: Make private
 	template<class T>
 	T* RegisterWindow(const std::string& name)
 	{

@@ -9,7 +9,7 @@
 
 #include <UI/IMenuSystem.h>
 
-#include "FXEditor/Segments/PropertyGroups/FxImGuiWidgets.h"
+#include "../FXEditor/Segments/PropertyGroups/FxImGuiWidgets.h"//TODO: Move
 
 CMiscWindow::CMiscWindow() :
 	mOverlay(NULL),

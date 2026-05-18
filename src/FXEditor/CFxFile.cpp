@@ -34,7 +34,7 @@
 #include "Segments/CFxCameraShakeSegment.h"
 #include "Segments/CFxTrailSegment.h"
 
-#include "../CXMLBFile.h"
+#include "../Utils/CXMLBFile.h"
 
 namespace fs = std::filesystem;
 

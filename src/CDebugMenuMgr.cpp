@@ -3,25 +3,28 @@
 #include <imgui/imgui.h>
 #include <imgui/imgui_impl_dx9.h>
 #include <imgui/imgui_impl_win32.h>
-#include "roboto_medium.h"
+#include "Utils/roboto_medium.h"
 
 #include <igGapDisplay.h>
 #include <igDisplay/igWin32Window.h>
 
 #include <Display/IAlchemyDisplay.h>
 
-#include "COverlayWindow.h"
-#include "CLimitStatisticsWindow.h"
-#include "CCacheWindow.h"
-#include "CCameraWindow.h"
-#include "CCheatsWindow.h"
-#include "CConversationWindow.h"
-#include "CEarthwormWindow.h"
-#include "CFxWindow.h"
-#include "CMiscWindow.h"
-#include "CWorldWindow.h"
-#include "CMapsWindow.h"
+#include "DebugWindows/COverlayWindow.h"
+#include "DebugWindows/CLimitStatisticsWindow.h"
+#include "DebugWindows/CCacheWindow.h"
+#include "DebugWindows/CCameraWindow.h"
+#include "DebugWindows/CCheatsWindow.h"
+#include "DebugWindows/CConversationWindow.h"
+#include "DebugWindows/CEarthwormWindow.h"
+#include "DebugWindows/CFxWindow.h"
+#include "DebugWindows/CMiscWindow.h"
+#include "DebugWindows/CWorldWindow.h"
+#include "DebugWindows/CMapsWindow.h"
+
+#ifdef _DEBUG
 #include "FXEditor/CFxEditorWindow.h"
+#endif
 
 #include "FXEditor/IFxEditor.h"
 
@@ -108,7 +111,6 @@ void CDebugMenuMgr::Shutdown()
 
 void CDebugMenuMgr::RunFrame()
 {
-
 }
 
 void CDebugMenuMgr::Draw()

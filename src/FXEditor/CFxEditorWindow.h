@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../IDebugWindow.h"
+#include "../DebugWindows/IDebugWindow.h"
 
 extern bool g_gammaEnabled;
 
