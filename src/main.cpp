@@ -30,11 +30,13 @@
 #include <Misc/DebugGraphics.h>
 #include <Misc/CConfig.h>
 
-#include "MUASDK.h"
+#include <MUASDK.h>
+
 #include "IDebugMenuMgr.h"
 
 #include "FXEditor/IFxEditor.h"
 #include "FXEditor/CMenuFxEditor.h"
+#include "FXEditor/CFxEditorWindow.h"
 
 int WINAPI WinMainHook(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, int nCmdShow)
 {
@@ -302,6 +304,7 @@ static void VersionDataHandler(CVarData* data)
 #include <Misc/ICommand.h>
 #include <Client/CClient.h>
 #include <Scene/IScene.h>
+#include <Scene/CScene.h>
 #include <Game/CMarvelCamera.h>
 
 static SafetyHookInline ogHook;
@@ -319,57 +322,33 @@ static void __fastcall UpdateGameBeginHook(CClient* client)
 	client->UpdateGameBegin();
 }
 
-#define shadowMapHemiSize (1024)
-#define shadowMapWidth (shadowMapHemiSize * 2)
-#define shadowMapHeight (shadowMapHemiSize * 4)
+//void InputHook(SafetyHookContext& ctx)
+//{
+//	using namespace Memory::VP;
+//	
+//	//GUID_SysMouse = {6F1D2B60-D5A0-11CF-BFC7-444553540000}
+//	LPDIRECTINPUT8 input = (LPDIRECTINPUT8)ctx.esi;
+//	
+//	if (input)
+//	{
+//		LPDIRECTINPUTDEVICE8 inputDevice = NULL;
+//		input->CreateDevice(GUID_SysMouse, &inputDevice, NULL);
+//
+//		if (inputDevice)
+//		{
+//			uintptr_t pDirectInputDeviceVTable = *reinterpret_cast<uintptr_t*>(inputDevice);
+//			uintptr_t pGetDeviceState = pDirectInputDeviceVTable + sizeof(uintptr_t) * 9;
+//			uintptr_t pGetDeviceData = pDirectInputDeviceVTable + sizeof(uintptr_t) * 10;
+//			
+//			InterceptMemDisplacement(pGetDeviceState, orgGetDeviceState, GetDeviceStateHook);
+//			InterceptMemDisplacement(pGetDeviceData, orgGetDeviceData, GetDeviceDataHook);
+//
+//			input->Release();
+//		}
+//	}
+//}
 
-__declspec(naked) void ShadowMapResolutionHook1()
-{
-	static const DWORD epilogue = 0x721A16;
-	
-	_asm
-	{
-		push shadowMapHeight
-		push shadowMapWidth
-		jmp epilogue
-	}
-}
-
-__declspec(naked) void ShadowMapResolutionHook2()
-{
-	static const DWORD epilogue = 0x721A9A;
-
-	_asm
-	{
-		push shadowMapHeight
-		push shadowMapWidth
-		jmp epilogue
-	}
-}
-
-__declspec(naked) void ShadowMapResolutionHook3()
-{
-	static const DWORD epilogue = 0x721A46;
-
-	_asm
-	{
-		mov dword ptr[ebp+0xC8], shadowMapWidth
-		mov dword ptr[ebp+0xCC], shadowMapHeight
-		jmp epilogue
-	}
-}
-
-__declspec(naked) void ShadowMapResolutionHook4()
-{
-	static const DWORD epilogue = 0x721AC4;
-
-	_asm
-	{
-		mov dword ptr [ebp+0x158], shadowMapWidth
-		mov dword ptr [ebp+0x15C], shadowMapHeight
-		jmp epilogue
-	}
-}
+#include <FX/CPlayFx.h>
 
 void OnInitializeHook()
 {
@@ -388,29 +367,29 @@ void OnInitializeHook()
 
 	HRESULT result;
 	LPDIRECTINPUT8 input = NULL;
-
+	
 	if ((result = DirectInput8Create(GetCurrentModule(), DIRECTINPUT_VERSION, IID_IDirectInput8W, (LPVOID*)&input, NULL)) != DI_OK)
 	{
 		printf("Failed to create DirectInput object. Error code: %d\n", result);
 		return;
 	}
-
+	
 	LPDIRECTINPUTDEVICE8 inputDevice = NULL;
-
+	
 	if ((result = input->CreateDevice(GUID_SysMouse, &inputDevice, NULL)) != DI_OK)
 	{
 		printf("Failed to create DirectInputDevice object. Error code: %d\n", result);
 		input->Release();
 		return;
 	}
-
+	
 	intptr_t pDirectInputDeviceVTable = *reinterpret_cast<intptr_t*>(inputDevice);
 	intptr_t pGetDeviceState = pDirectInputDeviceVTable + sizeof(intptr_t) * 9;
 	intptr_t pGetDeviceData = pDirectInputDeviceVTable + sizeof(intptr_t) * 10;
-
+	
 	InterceptMemDisplacement(pGetDeviceState, orgGetDeviceState, GetDeviceStateHook);
 	InterceptMemDisplacement(pGetDeviceData, orgGetDeviceData, GetDeviceDataHook);
-
+	
 	inputDevice->Release();
 	input->Release();
 
@@ -421,8 +400,31 @@ void OnInitializeHook()
 	//static SafetyHookMid menuFactoryCreateHook = safetyhook::create_mid(0x6BB85E, MenuFactoryCreateHook);
 	static SafetyHookMid freeViewHook = safetyhook::create_mid(0x4B4CEC, FreeViewHook);
 	static SafetyHookMid debugMoveHook = safetyhook::create_mid(0x46B19B, ActorMoveHook);
+	
 	//static SafetyHookMid skipLegalScreenHook = safetyhook::create_mid(0x417477, SkipLegalScreenHook);
 	static SafetyHookInline updateGameBeginHook = safetyhook::create_inline(0x418690, UpdateGameBeginHook);
+
+	//static SafetyHookMid beamFx1Hook = safetyhook::create_mid(0x48CB39, [](SafetyHookContext& ctx) {
+	//	CPlayFx* playFx = (CPlayFx*)ctx.eax;
+	//	printf("");
+	//	});
+	//
+	//static SafetyHookMid beamFx2Hook = safetyhook::create_mid(0x48CDB0, [](SafetyHookContext& ctx) {
+	//	CPlayFx* playFx = (CPlayFx*)ctx.eax;
+	//	printf("");
+	//	});
+	//
+	//static SafetyHookMid beamFx3Hook = safetyhook::create_mid(0x48D3EC, [](SafetyHookContext& ctx) {
+	//	CPlayFx* playFx = (CPlayFx*)ctx.eax;
+	//	printf("");
+	//	});
+	//
+	//static SafetyHookMid beamFx4Hook = safetyhook::create_mid(0x48D4AA, [](SafetyHookContext& ctx) {
+	//	CPlayFx* playFx = (CPlayFx*)ctx.eax;
+	//	printf("");
+	//	});
+
+	//static SafetyHookMid inputHook = safetyhook::create_mid(0x41468A, InputHook);
 
 	//ogHook = safetyhook::create_inline(0x4DFB90, UpdateFocusFreeViewHook);
 
@@ -467,12 +469,16 @@ void OnInitializeHook()
 	//Patch(0x67AAB8 + 1, 1.0F / 4096.0F);//Xbox360 4096
 	//Nop(0x67B8F3, 5);
 
-	OnInitEvent() += []()
+	//Nop(0x7204B7, 12);
+	//
+	//static SafetyHookMid displayTestHook = safetyhook::create_mid(0x7204B7, DisplayTestHook);
+
+	OnClientPostInitEvent() += []()
 	{
 		TheDebugMenuMgr().Initialize();
 	};
 
-	OnShutdownEvent() += []()
+	OnClientShutdownEvent() += []()
 	{
 		TheDebugMenuMgr().Shutdown();
 	};
@@ -500,6 +506,7 @@ void OnInitializeHook()
 		Command().RegisterCommand("freeview", FreeViewFunc);
 		Command().RegisterCommand("give", GiveFunc);
 		Command().RegisterCommand("slowmo", SlowMotionFunc);
+		Command().RegisterCommand("reloadzonenopersistence", ReloadZoneNoPersistenceFunc);
 	};
 
 	OnHandleEventsEvent() += []()

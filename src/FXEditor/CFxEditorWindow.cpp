@@ -48,6 +48,8 @@
 
 using namespace Gap;
 
+bool g_gammaEnabled = true;
+
 std::mutex pathMutex;
 std::string path;
 std::atomic<bool> ready(false);
@@ -93,6 +95,8 @@ void CFxEditorWindow::Draw()
 {
 	if (ImGui::Begin("FX Editor"))
 	{
+		ImGui::Checkbox("Gamma", &g_gammaEnabled);
+		
 		IFxEditor& editor = TheFxEditor();
 		CTextureAssetCache& textureCache = reinterpret_cast<CTextureAssetCache&>(editor.TextureCache());
 		CModelAssetCache& modelCache = reinterpret_cast<CModelAssetCache&>(editor.ModelCache());
@@ -233,6 +237,7 @@ void CFxEditorWindow::Draw()
 			
 			if (texHandle != -1)
 			{
+				ImGui::Text("Texture Id: %d", i);
 				Gfx::igDx9VisualContext* vc = Gfx::igDx9VisualContext::dynamicCast(TheAlchemyDisplay().GetVC());
 
 				if (vc)
@@ -377,10 +382,4 @@ void CFxEditorWindow::Draw()
 			ready = false;
 		}
 	}
-
-	ImGui::Text("Load active: %d\n", TheLoadThread().func_3());
-
-	CClient& client = (CClient&)TheClient();
-	ImGui::Text("Client legal: %f\n", client.field_36);
-	ImGui::Text("Client warning: %f\n", client.field_44);
 }

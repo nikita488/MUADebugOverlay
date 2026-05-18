@@ -187,7 +187,7 @@ bool CFxColorGroup::Draw(IFxSegment* segment)
 			
 			ImGui::SameLine();
 			flagsChanged |= ImGui::RadioButton("Lit", &mShaderType, SHADER_LIT); ImGui::SameLine();
-			flagsChanged |= ImGui::RadioButton("Post FX", &mShaderType, SHADER_POSTFX); ImGui::SameLine();
+			flagsChanged |= ImGui::RadioButton("Post FX", &mShaderType, SHADER_POSTFX);// ImGui::SameLine();
 			//TODO: Implement in the far future
 			//flagsChanged |= ImGui::RadioButton("Custom", &mShaderType, SHADER_CUSTOM);
 

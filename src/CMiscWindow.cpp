@@ -26,6 +26,13 @@ void CMiscWindow::Draw()
 	{
 		if (ImGui::CollapsingHeader("Options"))
 		{
+			bool teamSelect = TheMenuMgr().GetTeamSelect();
+
+			if (ImGui::Checkbox("Team Select", &teamSelect))
+			{
+				TheMenuMgr().SetTeamSelect(teamSelect);
+			}
+			
 			bool devInputEnabled = TheDeveloperInput().GetEnabled();
 
 			if (ImGui::Checkbox("DevInput", &devInputEnabled))
@@ -168,6 +175,21 @@ void CMiscWindow::Draw()
 			}
 
 			ImGui::Unindent();
+
+			if (ImGui::Button("Restart Zone (Leave and come back)"))
+			{
+				Command().AsyncCommand("runscript loadZone('','')");
+			}
+
+			if (ImGui::Button("Restart Zone (Reset persistence)"))
+			{
+				Command().AsyncCommand("reloadzonenopersistence");
+			}
+
+			if (ImGui::Button("Restart Zone (Reset game)"))
+			{
+				Command().AsyncCommand("runscript restartZone()");
+			}
 		}
 	}
 
