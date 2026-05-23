@@ -26,6 +26,7 @@
 #include "CFxCamera.h"
 #include "CFxPlayback.h"
 #include "CFxSegmentTable.h"
+#include "CFxSpawn.h"
 
 #include "CTextureAssetCache.h"
 #include "CModelAssetCache.h"
@@ -65,6 +66,7 @@ private:
 
 	float mLastTimeScale;
 	igVec4f mLastClearColor;
+	bool mLastFullscreenFXEnabled;
 
 	float mNextPlayTime;
 	int mPersistFXHandle;
@@ -73,9 +75,9 @@ private:
 	bool mIsPaused;
 	float mStopTime;
 
-	bool mWorldToolbarVisible;
-	bool mPlaybackBarVisible;
-	bool mStatusBarVisible;
+	bool mWorldWindowVisible;
+	bool mPlaybackWindowVisible;
+	bool mStatusWindowVisible;
 
 	igVec3f mSpawnOrigin;
 	float mAnimateSpawnPointTime;
@@ -85,8 +87,7 @@ private:
 
 	CFxSegmentTable mSegmentTable;
 
-	igVec3f mOrigin;
-	igVec3f mForwardAxis;
+	CFxSpawn mSpawn;
 
 	bool mShowError;
 	std::string mErrorMessage;

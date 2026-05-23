@@ -76,8 +76,8 @@ const char* litTextureLabels[MAX_TEXTURES] =
 	"Diffuse",
 	"Normal",
 	"Specular",
-	"Reflectance",
-	"Reflectance Mask",
+	"Reflection",
+	"Reflection Mask",
 	"Emissive",
 };
 
@@ -155,7 +155,7 @@ bool CFxColorGroup::Draw(IFxSegment* segment)
 	
 	IAssetCache& textureCache = TheFxEditor().TextureCache();
 	//TODO: Implement in the far future
-	IAssetCache& shaderCache = TheFxEditor().TextureCache();//TheFxEditor().ShaderCache();
+	//IAssetCache& shaderCache = TheFxEditor().TextureCache();//TheFxEditor().ShaderCache();
 
 	{
 		GroupSection section(IsTextureSupported(primType) && !mApplyShader);

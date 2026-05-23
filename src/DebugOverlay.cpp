@@ -16,6 +16,8 @@
 #include "FxEditor/IFxEditor.h"
 #include "FXEditor/CMenuFxEditor.h"
 
+EXTERN_C IMAGE_DOS_HEADER __ImageBase;
+
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 int GetBaseAddress()
@@ -105,15 +107,6 @@ static HRESULT WINAPI GetDeviceDataHook(LPDIRECTINPUTDEVICE8 device, DWORD cbObj
 	return orgGetDeviceData(device, cbObjectData, rgdod, pdwInOut, dwFlags);
 }
 
-const HMODULE GetCurrentModule()
-{
-	HMODULE hModule = NULL;
-	GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS
-		| GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
-		(LPCTSTR)GetCurrentModule, &hModule);
-	return hModule;
-}
-
 DebugOverlay::DebugOverlay()
 {
 	using namespace Memory::VP;
@@ -121,7 +114,7 @@ DebugOverlay::DebugOverlay()
 
 	LPDIRECTINPUT8 input = NULL;
 
-	if (DirectInput8Create(GetCurrentModule(), DIRECTINPUT_VERSION, IID_IDirectInput8W, (LPVOID*)&input, NULL) == DI_OK)
+	if (DirectInput8Create((HMODULE)&__ImageBase, DIRECTINPUT_VERSION, IID_IDirectInput8W, (LPVOID*)&input, NULL) == DI_OK)
 	{
 		LPDIRECTINPUTDEVICE8 inputDevice = NULL;
 
@@ -146,6 +139,11 @@ DebugOverlay::DebugOverlay()
 	InterceptMemDisplacement(0x720C8C + 1, orgsub_71EB20, sub_71EB20Hook);
 	InterceptMemDisplacement(0x720CBD + 1, orgsub_71EB70, sub_71EB70Hook);
 
+	OnClientPreInitEvent() += []()
+	{
+		RegisterMenu<CMenuFxEditor>("FXEDITOR_MENU");//TODO: Split to separate ASI plugin
+	};
+
 	OnClientPostInitEvent() += []()
 	{
 		TheDebugMenuMgr().Initialize();
@@ -165,8 +163,6 @@ DebugOverlay::DebugOverlay()
 	{
 		TheDebugMenuMgr().RunFrame();
 	};
-
-	RegisterMenu<CMenuFxEditor>("FXEDITOR_MENU");//TODO: Split to separate ASI plugin
 }
 
 DebugOverlay plugin;

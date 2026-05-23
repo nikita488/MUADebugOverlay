@@ -81,6 +81,8 @@ struct EffectSaveDialog : public ImGuiFileDialogContext
 static EffectOpenDialog effectOpenDlg;
 static EffectSaveDialog effectSaveDlg;
 
+static bool& g_fullscreenFXEnabled = *(bool*)0xD4029C;
+
 CFxEditor::CFxEditor()
 {
 	Reset();
@@ -102,6 +104,7 @@ void CFxEditor::Reset()
 	mDrawAxes = true;
 
 	mLastTimeScale = 1.0F;
+	mLastFullscreenFXEnabled = false;
 
 	mNextPlayTime = 0.0F;
 	mPersistFXHandle = 0;
@@ -110,9 +113,9 @@ void CFxEditor::Reset()
 	mIsPaused = false;
 	mStopTime = 0.0F;
 
-	mWorldToolbarVisible = false;
-	mPlaybackBarVisible = true;
-	mStatusBarVisible = true;
+	mWorldWindowVisible = false;
+	mPlaybackWindowVisible = true;
+	mStatusWindowVisible = true;
 
 	mSpawnOrigin = igVec3f::ZeroVector;
 	mAnimateSpawnPointTime = 0.0F;
@@ -122,8 +125,7 @@ void CFxEditor::Reset()
 
 	mSegmentTable.Clear();
 
-	mOrigin = igVec3f::ZeroVector;
-	mForwardAxis = igVec3f::ZeroVector;
+	mSpawn.Reset();
 
 	mShowError = false;
 	mErrorMessage.clear();
@@ -176,6 +178,7 @@ void CFxEditor::Initialize()
 
 	TheAlchemyDisplay().GetVC()->getClearColor(mLastClearColor);
 	mLastTimeScale = GetTimeScale();
+	mLastFullscreenFXEnabled = g_fullscreenFXEnabled;
 
 	SetTimeScale(mTimeScale);
 }
@@ -188,6 +191,7 @@ void CFxEditor::Shutdown()
 	
 	TheAlchemyDisplay().GetVC()->setClearColor(mLastClearColor);
 	_SetTimeScale(mLastTimeScale);
+	g_fullscreenFXEnabled = mLastFullscreenFXEnabled;
 	//ImGui::GetIO().MouseDrawCursor = false;
 
 	Reset();
@@ -429,7 +433,7 @@ void CFxEditor::ProcessOpenFileDialog()
 
 			if (success)
 			{
-				if (relativePath != mFilePath)//TODO: Check dirty flag?
+				if (mFile.IsDirty() || relativePath != mFilePath)//TODO: Check dirty flag?
 				{
 					std::string filePath = relativePath.string();
 
@@ -718,9 +722,21 @@ int CFxEditor::ViewMenu()
 {
 	if (ImGui::BeginMenu("View"))
 	{
-		ImGui::MenuItem("Playback Toolbar", NULL, &mPlaybackBarVisible);
-		ImGui::MenuItem("World Toolbar", NULL, &mWorldToolbarVisible);
-		ImGui::MenuItem("Status Bar", NULL, &mStatusBarVisible);
+		ImGui::MenuItem("Playback", NULL, &mPlaybackWindowVisible);
+
+		bool spawnWindowVisible = mSpawn.IsVisible();
+
+		if (ImGui::MenuItem("Spawn", NULL, &spawnWindowVisible))
+		{
+			mSpawn.SetVisible(spawnWindowVisible);
+		}
+
+		ImGui::MenuItem("World", NULL, &mWorldWindowVisible);
+		ImGui::MenuItem("Status", NULL, &mStatusWindowVisible);
+
+		ImGui::Separator();
+
+		ImGui::MenuItem("Fullscreen Effects", NULL, &g_fullscreenFXEnabled);
 
 		ImGui::Separator();
 
@@ -738,12 +754,12 @@ int CFxEditor::ViewMenu()
 
 void CFxEditor::PlaybackBar()
 {
-	if (!mPlaybackBarVisible)
+	if (!mPlaybackWindowVisible)
 	{
 		return;
 	}
 	
-	if (ImGui::Begin("Playback##PlaybackBar", &mPlaybackBarVisible, ImGuiWindowFlags_AlwaysAutoResize))
+	if (ImGui::Begin("Playback##PlaybackBar", &mPlaybackWindowVisible, ImGuiWindowFlags_AlwaysAutoResize))
 	{
 		{
 			GroupSection sectionA(mFile.HasSegments());
@@ -792,12 +808,12 @@ void CFxEditor::PlaybackBar()
 
 void CFxEditor::StatusBar()
 {
-	if (!mStatusBarVisible)
+	if (!mStatusWindowVisible)
 	{
 		return;
 	}
 	
-	if (ImGui::Begin("Status Bar", &mStatusBarVisible, ImGuiWindowFlags_AlwaysAutoResize))
+	if (ImGui::Begin("Status Bar", &mStatusWindowVisible, ImGuiWindowFlags_AlwaysAutoResize))
 	{
 		CFxManager& fxManager = reinterpret_cast<CFxManager&>(TheMenuFxManager());
 		int activeCount = fxManager.mActivePrimitives.size();
@@ -961,12 +977,12 @@ void CFxEditor::SegmentPropertiesWindow()
 
 void CFxEditor::WorldSettings()
 {
-	if (!mWorldToolbarVisible)
+	if (!mWorldWindowVisible)
 	{
 		return;
 	}
 	
-	if (ImGui::Begin("World Settings", &mWorldToolbarVisible, ImGuiWindowFlags_AlwaysAutoResize))
+	if (ImGui::Begin("World Settings", &mWorldWindowVisible, ImGuiWindowFlags_AlwaysAutoResize))
 	{
 		if (ImGui::SliderFloat("Time Scale", &mTimeScale, 0.1F, 10.0F, "%g", ImGuiSliderFlags_AlwaysClamp))
 		{
@@ -978,9 +994,6 @@ void CFxEditor::WorldSettings()
 
 		ImGui::ColorEdit4("Background Color", mBackgroundColor.vec, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoAlpha);
 		ImGui::ColorEdit4("Floor Color", mFloorColor.vec, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoAlpha);
-
-		ImGui::DragFloat3("Origin", mOrigin.vec, 1.0F, 0.0F, 0.0F, "%g");
-		ImGui::DragFloat3("Forward", mForwardAxis.vec, 1.0F, 0.0F, 0.0F, "%g");
 	}
 
 	ImGui::End();
@@ -998,6 +1011,7 @@ void CFxEditor::RunFrame()
 	//TODO: Bug: Sometimes if i hold mouse button before goint into FX Editor, it will move camera even if i currently doesn't hold it anymore
 	mCamera.RunFrame();
 	mPlayback.Update();
+	mSpawn.Update();
 
 	MainMenuBar();
 	PlaybackBar();
@@ -1012,12 +1026,24 @@ void CFxEditor::PlayEffect(int handle)
 {	
 	if (TheMenuFxManager().IsEffectPersistent(handle))
 	{
-		CPlayFx playFx(handle, mSpawnOrigin, mForwardAxis);
+		CPlayFx playFx(handle, mSpawnOrigin, mSpawn.GetForwardAxis());
+
+		playFx.OverrideFxLife(mSpawn.GetLife());
+		playFx.ScaleFxTime(mSpawn.GetTimeScale());
+		playFx.ScaleFxSize(mSpawn.GetSizeScale());
+		playFx.SetFxLevel(mSpawn.GetFxLevel());
+		playFx.SetColor(mSpawn.GetColor());
 		TheMenuFxManager().PlayPersistent(playFx, mPersistFXHandle);
 	}
 	else
 	{
-		CPlayFx playFx(handle, mSpawnOrigin, mForwardAxis);
+		CPlayFx playFx(handle, mSpawnOrigin, mSpawn.GetForwardAxis());
+		
+		playFx.OverrideFxLife(mSpawn.GetLife());
+		playFx.ScaleFxTime(mSpawn.GetTimeScale());
+		playFx.ScaleFxSize(mSpawn.GetSizeScale());
+		playFx.SetFxLevel(mSpawn.GetFxLevel());
+		playFx.SetColor(mSpawn.GetColor());
 		TheMenuFxManager().Play(playFx);
 	}
 }
@@ -1063,14 +1089,14 @@ void CFxEditor::UpdatePlayState()
 
 			if (time >= mAnimateSpawnPointTime)
 			{
-				mSpawnOrigin = mOrigin;
+				mSpawnOrigin = mSpawn.GetOrigin();
 				mAnimateSpawnPointTime = time + mPlayback.GetSpawnPointResetTime();
 			}
 		}
 		else
 		{
 			//TODO: Why?
-			mSpawnOrigin = mOrigin;
+			mSpawnOrigin = mSpawn.GetOrigin();
 		}
 
 		if (mPlayback.IsRespawnEveryFrame())

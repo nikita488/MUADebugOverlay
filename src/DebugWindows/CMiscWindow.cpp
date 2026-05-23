@@ -174,8 +174,6 @@ void CMiscWindow::Draw()
 				}
 			}
 
-			ImGui::Unindent();
-
 			if (ImGui::Button("Restart Zone (Leave and come back)"))
 			{
 				Command().AsyncCommand("runscript loadZone('','')");
@@ -190,6 +188,8 @@ void CMiscWindow::Draw()
 			{
 				Command().AsyncCommand("runscript restartZone()");
 			}
+
+			ImGui::Unindent();
 		}
 	}
 

@@ -10,6 +10,8 @@
 #include <FX/CFxTemplateManager.h>
 #include <FX/CFxTemplate.h>
 
+#include "../FXEditor/IFxEditor.h"
+
 using namespace Gap;
 
 const char* CFxWindow::fxPrimitiveNames[16] =
@@ -377,6 +379,11 @@ void CFxWindow::Draw()
 		{
 			if (ImGui::TreeNode(it.key().field_0.c_str()))
 			{
+				bool isFxEditorActive = TheFxEditor().IsActive();
+				
+				if (isFxEditorActive)
+					ImGui::BeginDisabled();
+				
 				CFxTemplate& fxTemplate = fxTemplateManager.field_19416[it.value()];
 
 				ImGui::InputFloat("LoopTime", &fxTemplate.field_4, 0.0F, 0.0F, "%g");
@@ -401,6 +408,9 @@ void CFxWindow::Draw()
 
 					index++;
 				}
+
+				if (isFxEditorActive)
+					ImGui::EndDisabled();
 
 				ImGui::TreePop();
 			}

@@ -86,8 +86,11 @@ void CFxSegment::UpdateAssetCaches(bool uncache)
 		UpdateAssetCache(fxCache, mDeathFxFile.c_str(), uncache);
 		UpdateAssetCache(fxCache, mIntervalFxFile.c_str(), uncache);
 
-		mTemplate->field_60 = TheFxTemplateManager().Find(mDeathFxFile.c_str(), MP_MENU);
-		mTemplate->field_64 = TheFxTemplateManager().Find(mIntervalFxFile.c_str(), MP_MENU);
+		if (!uncache)
+		{
+			mTemplate->field_60 = TheFxTemplateManager().Find(mDeathFxFile.c_str(), MP_MENU);
+			mTemplate->field_64 = TheFxTemplateManager().Find(mIntervalFxFile.c_str(), MP_MENU);
+		}
 	}
 }
 

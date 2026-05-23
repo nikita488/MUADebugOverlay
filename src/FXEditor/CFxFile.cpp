@@ -152,6 +152,8 @@ void CFxFile::LinkSegment(IFxSegment* segment, CFxPrimitiveTemplate* primitive, 
 
 bool CFxFile::Create()
 {
+	Clear();
+	
 	SFxFileInfo fileInfo;
 
 	if (!fileInfo.Allocate())
@@ -159,13 +161,14 @@ bool CFxFile::Create()
 		return false;
 	}
 
-	Clear();
 	mFileInfo = fileInfo;
 	return true;
 }
 
 bool CFxFile::LoadFromFile(const char* fileName)
 {	
+	Clear();
+
 	CFxFileParser parser;
 	SFxFileInfo fileInfo;
 
@@ -174,7 +177,6 @@ bool CFxFile::LoadFromFile(const char* fileName)
 		return false;
 	}
 
-	Clear();
 	mFileInfo = fileInfo;
 
 	for (auto& segmentTemplate : parser.GetSegmentTemplates())

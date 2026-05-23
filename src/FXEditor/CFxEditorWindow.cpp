@@ -91,10 +91,20 @@ PDIRECT3DTEXTURE9 ptr = NULL;
 int width = -1;
 int height = -1;
 
+#include <UI/CMenuSystem.h>
+
 void CFxEditorWindow::Draw()
 {
 	if (ImGui::Begin("FX Editor"))
 	{
+		for (auto it = menuFactoryMenus.begin(); it != menuFactoryMenus.end(); it++)
+		{
+			auto& key = it.key();
+			auto& val = it.value();
+
+			ImGui::Text("%s: %p", key.c_str(), &val);
+		}
+		
 		ImGui::Checkbox("Gamma", &g_gammaEnabled);
 		
 		IFxEditor& editor = TheFxEditor();
