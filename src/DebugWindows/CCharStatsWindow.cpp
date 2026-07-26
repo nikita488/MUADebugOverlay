@@ -3,6 +3,7 @@
 #include <imgui/imgui.h>
 
 #include <Game/CCharacters.h>
+#include <Game/CEntity.h>
 
 static bool AddCheckbox(const char* label, bool checked)
 {
@@ -57,19 +58,25 @@ void CCharStatsWindow::Draw()
 				ImGui::Text("Footstep FX: %s", stats.mFootstepFX.c_str());
 				ImGui::Text("Sound Dir: %s", stats.mSoundDir.c_str());
 
+				ImGui::Text("Skin Class: %02d", stats.mSkinClass);
+
 				if (ImGui::TreeNode("Skins"))
 				{
-					for (unsigned int j = 0; j < 6; j++) {
-						ImGui::Text("%d: %s", j + 1, stats.mSkinNames[j].c_str());
+					for (unsigned int j = 0; j < 6; j++)
+					{
+						if (!stats.mSkinNames[j].empty())
+						{
+							ImGui::Text("%02d: %s", j + 1, stats.mSkinNames[j].c_str());
+						}
 					}
+
 					ImGui::TreePop();
 				}
 
-				ImGui::Text("Character Index: %d", stats.mSkinClass);
 				ImGui::Text("Heaviness: %d", stats.mHeaviness);
 				ImGui::Text("Menu Location: %d", stats.mMenuLocation);
-				ImGui::Text("Size: %f %f %f", stats.mSize[0], stats.mSize[1], stats.mSize[2]);
-				ImGui::Text("Team: %d", stats.mTeam);
+				ImGui::Text("Size: %g %g %g", stats.mSize[0], stats.mSize[1], stats.mSize[2]);
+				ImGui::Text("Team: %s", CEntity::GetStringFromTeam(EFlags(stats.mTeam)));
 				ImGui::Text("Has Weapon: %s", stats.mWeapon > 0 ? "true" : "false");
 				ImGui::Text("Combo Level: %d", stats.mComboLevel);
 
@@ -120,20 +127,20 @@ void CCharStatsWindow::Draw()
 					ImGui::TreePop();
 				}
 
-				ImGui::Text("Scale Factor: %f", stats.mModelScaleFactor);
+				ImGui::Text("Scale Factor: %g", stats.mModelScaleFactor);
 				ImGui::Text("Has Multipart's: %s", stats.mMultipartHandle > 0 ? "true" : "false");
 				ImGui::Text("Counter: %d", stats.mCounter);
 				ImGui::Text("AI Alert Radius: %d", stats.mAIAlertRadius);
 				ImGui::Text("AI Attack Range: %d", stats.mAIAttackRange);
-				ImGui::Text("AI Grab Chance: %f", stats.mAIGrabChance);
-				ImGui::Text("AI Pickup Throw Chance: %f", stats.mAIPickUpThrowChance);
+				ImGui::Text("AI Grab Chance: %g", stats.mAIGrabChance);
+				ImGui::Text("AI Pickup Throw Chance: %g", stats.mAIPickUpThrowChance);
 				ImGui::Text("AI Script Level: %d", stats.mAIScriptLevel);
-				ImGui::Text("AI Flee Distance: %f", stats.mAIFleeDistance);
-				ImGui::Text("AI Melee Timer Offset: %f", stats.mAIMeleeTimerOffset);
-				ImGui::Text("AI Melee Timer Random Add: %f", stats.mAIMeleeTimerRandomAdd);
-				ImGui::Text("AI Ranged Timer Offset: %f", stats.mAIRangedTimerOffset);
-				ImGui::Text("AI Pickup Weapon Chance: %f", stats.mAIPickupWeaponChance);
-				ImGui::Text("Danger Rating: %f", stats.mDangerRating);
+				ImGui::Text("AI Flee Distance: %g", stats.mAIFleeDistance);
+				ImGui::Text("AI Melee Timer Offset: %g", stats.mAIMeleeTimerOffset);
+				ImGui::Text("AI Melee Timer Random Add: %g", stats.mAIMeleeTimerRandomAdd);
+				ImGui::Text("AI Ranged Timer Offset: %g", stats.mAIRangedTimerOffset);
+				ImGui::Text("AI Pickup Weapon Chance: %g", stats.mAIPickupWeaponChance);
+				ImGui::Text("Danger Rating: %g", stats.mDangerRating);
 
 				ImGui::TreePop();
 			}
