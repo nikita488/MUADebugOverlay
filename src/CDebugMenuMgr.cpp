@@ -21,6 +21,7 @@
 #include "DebugWindows/CMiscWindow.h"
 #include "DebugWindows/CWorldWindow.h"
 #include "DebugWindows/CMapsWindow.h"
+#include "DebugWindows/CCharStatsWindow.h"
 
 #ifdef _DEBUG
 #include "FXEditor/CFxEditorWindow.h"
@@ -80,6 +81,7 @@ void CDebugMenuMgr::RegisterAllWindows()
 	RegisterWindow<CFxWindow>("fx");
 	RegisterWindow<CWorldWindow>("world");
 	RegisterWindow<CMapsWindow>("maps");
+	RegisterWindow<CCharStatsWindow>("character_stats");
 	
 #ifdef _DEBUG
 	RegisterWindow<CFxEditorWindow>("fx_editor");
@@ -111,21 +113,34 @@ void CDebugMenuMgr::Shutdown()
 
 void CDebugMenuMgr::RunFrame()
 {
+	//if (!ImGui::GetCurrentContext()) return;
+	//
+	//ImGui_ImplDX9_NewFrame();
+	//ImGui_ImplWin32_NewFrame();
+	//
+	//ImGuiIO& io = ImGui::GetIO();
+	//
+	//io.MouseDrawCursor = mEnabled || TheFxEditor().IsActive();
+	//io.DisplaySize.x = float(TheDisplay().GetWidth());
+	//io.DisplaySize.y = float(TheDisplay().GetHeight());
+	//
+	//ImGui::NewFrame();
+	//ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport(), ImGuiDockNodeFlags_NoDockingOverCentralNode | ImGuiDockNodeFlags_PassthruCentralNode);
 }
 
 void CDebugMenuMgr::Draw()
 {
 	if (!ImGui::GetCurrentContext()) return;
-
+	
 	ImGui_ImplDX9_NewFrame();
 	ImGui_ImplWin32_NewFrame();
-
+	
 	ImGuiIO& io = ImGui::GetIO();
-
+	
 	io.MouseDrawCursor = mEnabled || TheFxEditor().IsActive();
 	io.DisplaySize.x = float(TheDisplay().GetWidth());
 	io.DisplaySize.y = float(TheDisplay().GetHeight());
-
+	
 	ImGui::NewFrame();
 	ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport(), ImGuiDockNodeFlags_NoDockingOverCentralNode | ImGuiDockNodeFlags_PassthruCentralNode);
 
