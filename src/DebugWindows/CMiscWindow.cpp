@@ -94,6 +94,16 @@ void CMiscWindow::Draw()
 					Command().AsyncCommand("openmenu debug");
 				}
 
+				if (ImGui::Button("Menu : Change Characters"))
+				{
+					Command().AsyncCommand("runscript extractionPointChange(0,0)");
+				}
+
+				if (ImGui::Button("Menu : Comic Mission Simulator"))
+				{
+					Command().AsyncCommand("set drmode 0;openmenu danger_room");
+				}
+
 				if (ImGui::Button("Menu : Codex"))
 				{
 					Command().AsyncCommand("openmenu codex");
