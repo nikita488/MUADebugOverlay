@@ -49,6 +49,7 @@ void ShowCharacterStats()
 	CCharacters& characters = reinterpret_cast<CCharacters&>(TheCharacters());
 	CMultipartManager& multipartMgr = reinterpret_cast<CMultipartManager&>(TheMultipartManager());
 
+	ImGui::SeparatorText("Characters");
 	ImGui::Text("Stats: %d / %d", characters.mStats.size(), characters.mStats.capacity());
 	ImGui::Text("Characters: %d / %d", characters.mCharacterLookup.size(), characters.mCharacterLookup.capacity());
 	ImGui::Text("Hero: %d / %d", characters.mStatDataHero.size(), characters.mStatDataHero.capacity());
