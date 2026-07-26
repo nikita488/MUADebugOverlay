@@ -59,7 +59,7 @@ workspace "MUADebugMenu"
 		symbols "on"
 		optimize "speed"
 		runtime "release"
-		flags { "LinkTimeOptimization" }
+		linktimeoptimization "On"
 		
 project "28 Heroes"
 	defines { "HERO_COUNT=28" }
