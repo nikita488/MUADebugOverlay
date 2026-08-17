@@ -217,14 +217,15 @@ void ShowModelMgrStats()
 void ShowPowerupStats()
 {
 	const CPowerupPool& powerupPool = ThePowerupPool();
-	const CPoolInterface<IAffecter, CAffecter, 384>& affecterPool = CAffecter::TheAffecterPool();
-	const CPoolInterface<IFxCoreData, CFxCoreData, 196>& fxPool = CFxCoreData::TheFxPool();
-	const CPoolInterface<IPowerupBoltOn, CPowerupBoltOn, 32>& powerupBoltOnPool = CPowerupBoltOn::ThePowerupBoltOnPool();
-	const CPoolInterface<IPowerupScope, CPowerupScope, 128>& scopePool = CPowerupScope::TheScopePool();
-	const CPoolInterface<IVirtualFunctionNode, CVirtualFunctionNode, 192>& vfNodePool = CVirtualFunctionNode::TheVirtualFunctionPool();
+	const TAffecterPool& affecterPool = CAffecter::TheAffecterPool();
+	const TFxPool& fxPool = CFxCoreData::TheFxPool();
+	const TPowerupBoltOnPool& powerupBoltOnPool = CPowerupBoltOn::ThePowerupBoltOnPool();
+	const TScopePool& scopePool = CPowerupScope::TheScopePool();
+	const TVirtualFunctionPool& vfNodePool = CVirtualFunctionNode::TheVirtualFunctionPool();
 	const TAttachedPowerupPool& attachedPowerupPool = TheAttachedPowerupPool();
-	const CPoolInterface<IAttachedPrimaryFx, CAttachedPrimaryFx, 128>& attachedPrimaryFxPool = CAttachedPrimaryFx::TheAttachedPrimaryFxPool();
-	const CPoolInterface<IAttachedPrimaryData, CAttachedPrimaryData, 96>& attachedPrimaryDataPool = CAttachedPrimaryData::TheAttachedPrimaryDataPool();
+	const TAttachedPrimaryFxPool& attachedPrimaryFxPool = CAttachedPrimaryFx::TheAttachedPrimaryFxPool();
+	const TAttachedPrimaryDataPool& attachedPrimaryDataPool = CAttachedPrimaryData::TheAttachedPrimaryDataPool();
+	const TAttachedBoltOnPool& attachedBoltOnPool = CAttachedBoltOn::TheAttachedBoltOnPool();
 
 	ImGui::SeparatorText("Powerup Pools");
 	ImGui::Text("Powerup: %d / %d", powerupPool.mPool.size(), powerupPool.mPool.capacity());
@@ -236,6 +237,7 @@ void ShowPowerupStats()
 	ImGui::Text("Attached Powerup: %d / %d", attachedPowerupPool.mPool.size(), attachedPowerupPool.mPool.capacity());
 	ImGui::Text("Attached Primary Fx: %d / %d", attachedPrimaryFxPool.mPool.size(), attachedPrimaryFxPool.mPool.capacity());
 	ImGui::Text("Attached Primary Data: %d / %d", attachedPrimaryDataPool.mPool.size(), attachedPrimaryDataPool.mPool.capacity());
+	ImGui::Text("Attached BoltOn: %d / %d", attachedBoltOnPool.mPool.size(), attachedBoltOnPool.mPool.capacity());
 }
 
 void ShowZoneStats()
